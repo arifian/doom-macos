@@ -12,7 +12,6 @@
 ;; To install
 
 (package! ergoemacs-mode)
-(package! ergoemacs-mode)
 (package! mermaid-mode)
 (package! ob-mermaid)
 (package! cider)
