@@ -14,6 +14,16 @@
 (setq mac-function-modifier 'hyper)      ; Fn as Hyper (if needed)
 
 ;; ============================================================================
+;; MACOS PATH CONFIGURATION
+;; ============================================================================
+;; Ensure Emacs can find Cargo binaries (rust-analyzer, etc.)
+;; This fixes "file-missing rust-analyzer" errors that cause editor slowdowns
+(when (memq window-system '(mac ns))
+  (let ((cargo-bin (expand-file-name "~/.cargo/bin")))
+    (setenv "PATH" (concat (getenv "PATH") ":" cargo-bin))
+    (setq exec-path (append exec-path (list cargo-bin)))))
+
+;; ============================================================================
 ;; USER INFORMATION (Optional)
 ;; ============================================================================
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
