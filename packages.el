@@ -9,21 +9,15 @@
 ;;
 ;; Use 'C-h f package\!' to look up documentation for the `package!' macro.
 
-;; To install
-
-(package! ergoemacs-mode)
-(package! mermaid-mode)
-(package! ob-mermaid)
-(package! cider)
-(package! eca :recipe (:host github :repo "editor-code-assistant/eca-emacs" :files ("*.el")))
-
-(package! whisper
-  :recipe (:host github :repo "natrys/whisper.el"))
-
-(package! circadian)
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
+
+;;; Phase 1 ---------------------------------------------------------------
+;; Non-modal CUA-style keybindings (used in place of evil).
+(package! ergoemacs-mode)
+;; NOTE: treemacs is provided by the :ui treemacs Doom module (init.el),
+;; so it does NOT need a `package!' entry here.
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
