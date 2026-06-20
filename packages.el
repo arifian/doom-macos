@@ -19,6 +19,17 @@
 ;; NOTE: treemacs is provided by the :ui treemacs Doom module (init.el),
 ;; so it does NOT need a `package!' entry here.
 
+;;; agent-shell — in-Emacs AI agent shell (Claude/Gemini/etc via ACP) ------
+;; All three are on MELPA. `acp' = Agent Client Protocol transport,
+;; `shell-maker' = shell UI foundation, `agent-shell' = the package itself.
+(package! shell-maker)
+(package! acp)
+(package! agent-shell)
+
+;; Imports the shell's PATH into GUI Emacs so `claude-agent-acp' (lives in the
+;; nvm node bin dir) is found even when Emacs is launched from the macOS dock.
+(package! exec-path-from-shell)
+
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format

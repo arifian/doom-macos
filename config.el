@@ -100,6 +100,33 @@
   (treemacs-git-mode 'deferred))  ; show git status (deferred = async, fast)
 
 
+;;; ===========================================================================
+;;; PATH — make GUI Emacs see the shell's PATH (nvm node, brew, etc.)
+;;; ===========================================================================
+;; macOS GUI Emacs (dock/Finder) does NOT inherit the login-shell PATH, so
+;; binaries like `claude-agent-acp' (in the nvm node bin dir) go missing. Import
+;; them once, only when running in a GUI; survives node version bumps.
+(use-package! exec-path-from-shell
+  :when (display-graphic-p)
+  :config
+  (exec-path-from-shell-initialize))
+
+
+;;; ===========================================================================
+;;; agent-shell — AI coding agents inside Emacs (Claude via ACP)
+;;; ===========================================================================
+;; Launch with `M-x agent-shell-anthropic-start-claude-code'. Requires the
+;; `claude-agent-acp' binary on PATH (installed globally via npm; see PATH block
+;; above). Auth :login t reuses an existing `claude` CLI login (no API key var).
+(use-package! agent-shell
+  :commands (agent-shell-anthropic-start-claude-code)
+  :config
+  ;; In :config (not :init) — `agent-shell-anthropic-make-authentication' only
+  ;; exists once the package is loaded; runs before the start command fires.
+  (setq agent-shell-anthropic-authentication
+        (agent-shell-anthropic-make-authentication :login t)))
+
+
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `with-eval-after-load' block, otherwise Doom's defaults may override your
 ;; settings. E.g.
