@@ -39,9 +39,13 @@ point. If you *like* vim/evil, this is probably the wrong config to copy.
 ```sh
 brew tap d12frosted/emacs-plus
 brew install emacs-plus@30 --with-native-comp
-# Put the app where macOS can find it (icon + Spotlight/Dock):
-ln -s /opt/homebrew/opt/emacs-plus@30/Emacs.app /Applications/Emacs.app
+# Put the app in /Applications as a Finder ALIAS (a symlink is NOT indexed by
+# Spotlight, so ⌘-Space wouldn't find it):
+osascript -e 'tell application "Finder" to make alias file to POSIX file "/opt/homebrew/opt/emacs-plus@30/Emacs.app" at POSIX file "/Applications"'
 ```
+
+> Why an alias and not `ln -s`? Spotlight skips symlinked `.app` bundles, so a
+> symlink launches fine from the terminal but never shows up in Spotlight/Launchpad.
 
 ### 2. Install the icon font (do NOT skip — see [Troubleshooting](#troubleshooting))
 
@@ -135,6 +139,69 @@ copy/paste/quit. To change the mapping, edit the `ns-command-modifier` block at 
 Built in phases; cherry-picked as needed.
 
 - [x] **Phase 1** — ergoemacs (non-modal) editing + treemacs tree + macOS modifiers + perf fixes
-- [ ] Fonts & theme (incl. location-aware day/night switching)
-- [ ] LSP + language servers (Rust, etc.), with GUI `PATH` wiring for emacs-plus
+- [x] **Phase 1.5** — restored the *zero-dependency* modules from the pre-rebuild config (work on a
+  plain `doom sync`, no external tools): `doom-quit`, `indent-guides`, `minimap`, `nav-flash`,
+  `smooth-scroll`, `tabs`, `window-select`, `word-wrap`, and `:lang` `json` / `yaml` / `web`.
+- [ ] Fonts & theme (incl. location-aware day/night switching via `circadian`)
+- [ ] LSP + language servers, with GUI `PATH` wiring for emacs-plus
 - [ ] Org-mode + completion (corfu/orderless) tuning
+
+### Deferred menu — modules that need an external step (cherry-pick)
+
+These were enabled in the old config but are intentionally **off** until their prerequisite is
+installed. Pick one, install the prereq, then enable the module in `init.el` (or `package!` in
+`packages.el`) and run `doom sync`. Anything marked **+lsp** also needs `:tools (lsp +eglot)` enabled.
+
+**Languages** (`:lang`)
+
+| Module | Prerequisite to install first |
+|--------|-------------------------------|
+| `(rust +lsp)` | `rustup` + `rust-analyzer`; add `~/.cargo/bin` to Emacs `exec-path` (Dock GUI PATH) |
+| `(go +lsp)` | `brew install go` + `go install golang.org/x/tools/gopls@latest` |
+| `(java +lsp)` | `brew install openjdk` (JDK); `lsp-java` auto-downloads the jdt server |
+| `python` | `python3` (Xcode CLT); optional `pyright`/`python-lsp-server`, `black`, `isort` |
+| `javascript` | `node`/`npm`; optional `typescript-language-server` |
+| `php` | `brew install php composer`; optional `intelephense` |
+| `clojure` | JDK + `clojure`/`leiningen` (CIDER needs a running nREPL) |
+| `common-lisp` | `brew install sbcl` (SLY) |
+| `latex` | a TeX distro — `brew install --cask basictex` — + `latexmk` |
+| `nix` | the `nix` package manager |
+
+**Terminal & viewers** (`:term` / `:tools`)
+
+| Module | Prerequisite |
+|--------|--------------|
+| `vterm` | compiles a native module: `brew install cmake libtool` |
+| `pdf` | builds `epdfinfo`: `brew install poppler automake` |
+
+**Checkers & tool integrations** (`:checkers` / `:tools`)
+
+| Module | Prerequisite |
+|--------|--------------|
+| `(spell +flyspell)` | `brew install aspell` (+ dictionaries) |
+| `direnv` | `brew install direnv` + shell hook |
+| `docker` | Docker Desktop or `colima` + docker CLI |
+
+**Diagrams** (`:lang` / packages)
+
+| Module / package | Prerequisite |
+|------------------|--------------|
+| `plantuml` | `brew install plantuml` (pulls Java) |
+| `graphviz` | `brew install graphviz` (`dot`) |
+| `mermaid-mode`, `ob-mermaid` | `npm i -g @mermaid-js/mermaid-cli` (`mmdc`) |
+
+**Extra packages** (`packages.el`)
+
+| Package | Prerequisite |
+|---------|--------------|
+| `circadian` | none external — just needs config (lat/long + day/night themes); part of the theme phase |
+| `cider` | comes with the `clojure` module; needs JVM + a Clojure REPL |
+| `eca` (editor-code-assistant) | the `eca` server binary + model/API config |
+| `whisper` | `brew install ffmpeg` + build whisper.cpp + download a model + set mic device |
+
+**Input** (`:input` / `:ui`)
+
+| Module | Prerequisite |
+|--------|--------------|
+| `japanese` | `brew install cmigemo` (for migemo) + a Japanese input method |
+| `(emoji +unicode)` | none to install, but `emojify` downloads an emoji image set on first use |
