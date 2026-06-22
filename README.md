@@ -28,11 +28,26 @@ point. If you *like* vim/evil, this is probably the wrong config to copy.
 
 - macOS (developed on Apple Silicon / Tahoe 26; Intel should work, adjust the Homebrew prefix).
 - [Homebrew](https://brew.sh).
+- [`ripgrep`](https://github.com/BurntSushi/ripgrep) — `brew install ripgrep`. Search backend for
+  the `ivy`/`counsel` module (and projectile). Installed by `install.sh`.
 - ~1–2 GB disk and a few minutes for the first `doom sync` / native compilation.
 
 ## Install on a new machine
 
 > Doom lives in `~/.config/emacs`; this config lives in `~/.config/doom`. The two are separate.
+
+### Quick start (scripted)
+
+If you have Homebrew, the [`install.sh`](install.sh) script does steps 1–5 below — installs
+`emacs-plus`, the nerd-icons font, and `ripgrep`, clones Doom, and runs `doom sync`. It's
+idempotent (safe to re-run):
+
+```sh
+git clone https://github.com/arifian/doom-macos ~/.config/doom
+~/.config/doom/install.sh
+```
+
+Prefer to do it by hand (or understand each step)? Follow the manual steps below.
 
 ### 1. Install Emacs (emacs-plus)
 
