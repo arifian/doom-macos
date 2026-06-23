@@ -109,6 +109,11 @@
 (use-package! exec-path-from-shell
   :when (display-graphic-p)
   :config
+  ;; brew lives in ~/.zprofile (login shell), but nvm (~/.zshrc) and nix
+  ;; (/etc/zshrc) only initialize in INTERACTIVE rc files. A Spotlight/Finder
+  ;; launch imports from a login shell, which skips those — so without "-i" the
+  ;; nvm npm servers and `nixd' go missing from `exec-path'. Force login+interactive.
+  (setq exec-path-from-shell-arguments '("-l" "-i"))
   (exec-path-from-shell-initialize))
 
 

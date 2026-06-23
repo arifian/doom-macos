@@ -30,6 +30,10 @@ point. If you *like* vim/evil, this is probably the wrong config to copy.
 - [Homebrew](https://brew.sh).
 - [`ripgrep`](https://github.com/BurntSushi/ripgrep) — `brew install ripgrep`. Search backend for
   the `ivy`/`counsel` module (and projectile). Installed by `install.sh`.
+- **Language servers / linters / formatters** for the enabled `:lang` + `(lsp +eglot)` modules —
+  installed by `install.sh` (brew + a few npm packages). Note: `(lsp +eglot)` is in use, and unlike
+  `lsp-mode`, **eglot does not auto-install servers** — they must be on `PATH` before you open a file,
+  which is exactly what `install.sh` handles.
 - ~1–2 GB disk and a few minutes for the first `doom sync` / native compilation.
 
 ## Install on a new machine
@@ -38,9 +42,10 @@ point. If you *like* vim/evil, this is probably the wrong config to copy.
 
 ### Quick start (scripted)
 
-If you have Homebrew, the [`install.sh`](install.sh) script does steps 1–5 below — installs
-`emacs-plus`, the nerd-icons font, and `ripgrep`, clones Doom, and runs `doom sync`. It's
-idempotent (safe to re-run):
+If you have Homebrew, the [`install.sh`](install.sh) script does the whole flow below — installs
+`emacs-plus` and the nerd-icons font, `ripgrep`, and every language server / linter / formatter the
+enabled modules need (brew + npm), then clones Doom and runs `doom sync`. It's idempotent (safe to
+re-run):
 
 ```sh
 git clone https://github.com/arifian/doom-macos ~/.config/doom
@@ -53,7 +58,7 @@ Prefer to do it by hand (or understand each step)? Follow the manual steps below
 
 ```sh
 brew tap d12frosted/emacs-plus
-brew install emacs-plus@30 --with-native-comp
+brew install emacs-plus@30   # native-comp is built in by default on @30 — no flag needed
 # Put the app in /Applications as a Finder ALIAS (a symlink is NOT indexed by
 # Spotlight, so ⌘-Space wouldn't find it):
 osascript -e 'tell application "Finder" to make alias file to POSIX file "/opt/homebrew/opt/emacs-plus@30/Emacs.app" at POSIX file "/Applications"'
@@ -157,52 +162,55 @@ Built in phases; cherry-picked as needed.
 - [x] **Phase 1.5** — restored the *zero-dependency* modules from the pre-rebuild config (work on a
   plain `doom sync`, no external tools): `doom-quit`, `indent-guides`, `minimap`, `nav-flash`,
   `smooth-scroll`, `tabs`, `window-select`, `word-wrap`, and `:lang` `json` / `yaml` / `web`.
+- [x] **Phase 2** — LSP via `(lsp +eglot)` + the `:lang` set (clojure, go, java, javascript, json,
+  markdown, nix, php, python, sh, web, yaml), plus `(spell +flyspell)`, `grammar`, and `pdf`. All
+  their servers/linters/formatters are installed by `install.sh`. (GUI `PATH` wiring for emacs-plus
+  still pending — see below.)
+- [ ] GUI `PATH` wiring: make Dock-launched emacs-plus see the servers (`exec-path-from-shell` /
+  bake store paths) so LSP works when Emacs isn't launched from a login shell
 - [ ] Fonts & theme (incl. location-aware day/night switching via `circadian`)
-- [ ] LSP + language servers, with GUI `PATH` wiring for emacs-plus
 - [ ] Org-mode + completion (corfu/orderless) tuning
+
+### Already enabled (Phase 2)
+
+These `:lang` + tooling modules are **on**, and `install.sh` installs their prerequisites:
+
+`clojure` · `(go +lsp)` · `(java +lsp)` · `javascript` · `json` · `markdown` · `nix` · `php` ·
+`python` · `sh` · `web` · `yaml` · `plantuml` (+`graphviz`/`dot`) · `pdf` · `(spell +flyspell)` ·
+`grammar`. The LSP client is `(lsp +eglot)`.
 
 ### Deferred menu — modules that need an external step (cherry-pick)
 
-These were enabled in the old config but are intentionally **off** until their prerequisite is
-installed. Pick one, install the prereq, then enable the module in `init.el` (or `package!` in
-`packages.el`) and run `doom sync`. Anything marked **+lsp** also needs `:tools (lsp +eglot)` enabled.
+These are intentionally **off** until their prerequisite is installed. Pick one, install the prereq,
+then enable the module in `init.el` (or `package!` in `packages.el`) and run `doom sync`. Anything
+marked **+lsp** runs under the already-enabled `:tools (lsp +eglot)`.
 
 **Languages** (`:lang`)
 
 | Module | Prerequisite to install first |
 |--------|-------------------------------|
 | `(rust +lsp)` | `rustup` + `rust-analyzer`; add `~/.cargo/bin` to Emacs `exec-path` (Dock GUI PATH) |
-| `(go +lsp)` | `brew install go` + `go install golang.org/x/tools/gopls@latest` |
-| `(java +lsp)` | `brew install openjdk` (JDK); `lsp-java` auto-downloads the jdt server |
-| `python` | `python3` (Xcode CLT); optional `pyright`/`python-lsp-server`, `black`, `isort` |
-| `javascript` | `node`/`npm`; optional `typescript-language-server` |
-| `php` | `brew install php composer`; optional `intelephense` |
-| `clojure` | JDK + `clojure`/`leiningen` (CIDER needs a running nREPL) |
 | `common-lisp` | `brew install sbcl` (SLY) |
 | `latex` | a TeX distro — `brew install --cask basictex` — + `latexmk` |
-| `nix` | the `nix` package manager |
 
-**Terminal & viewers** (`:term` / `:tools`)
+**Terminal & viewers** (`:term`)
 
 | Module | Prerequisite |
 |--------|--------------|
 | `vterm` | compiles a native module: `brew install cmake libtool` |
-| `pdf` | builds `epdfinfo`: `brew install poppler automake` |
 
-**Checkers & tool integrations** (`:checkers` / `:tools`)
+**Tool integrations** (`:tools`)
 
 | Module | Prerequisite |
 |--------|--------------|
-| `(spell +flyspell)` | `brew install aspell` (+ dictionaries) |
 | `direnv` | `brew install direnv` + shell hook |
 | `docker` | Docker Desktop or `colima` + docker CLI |
+| `tmux` | `brew install tmux` |
 
-**Diagrams** (`:lang` / packages)
+**Diagrams** (packages)
 
 | Module / package | Prerequisite |
 |------------------|--------------|
-| `plantuml` | `brew install plantuml` (pulls Java) |
-| `graphviz` | `brew install graphviz` (`dot`) |
 | `mermaid-mode`, `ob-mermaid` | `npm i -g @mermaid-js/mermaid-cli` (`mmdc`) |
 
 **Extra packages** (`packages.el`)
@@ -210,13 +218,11 @@ installed. Pick one, install the prereq, then enable the module in `init.el` (or
 | Package | Prerequisite |
 |---------|--------------|
 | `circadian` | none external — just needs config (lat/long + day/night themes); part of the theme phase |
-| `cider` | comes with the `clojure` module; needs JVM + a Clojure REPL |
 | `eca` (editor-code-assistant) | the `eca` server binary + model/API config |
 | `whisper` | `brew install ffmpeg` + build whisper.cpp + download a model + set mic device |
 
-**Input** (`:input` / `:ui`)
+**Input** (`:input`)
 
 | Module | Prerequisite |
 |--------|--------------|
 | `japanese` | `brew install cmigemo` (for migemo) + a Japanese input method |
-| `(emoji +unicode)` | none to install, but `emojify` downloads an emoji image set on first use |
